@@ -6,6 +6,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +17,10 @@ import com.example.lhb.common.TPMSConsts;
 import com.example.lhb.tool.Jt808Client;
 import com.example.lhb.util.BitOperator;
 import com.example.lhb.util.HexStringUtils;
+import com.example.lhb.vo.req.TerminalAuthentication;
+import com.example.lhb.vo.req.TerminalCommonResp;
+import com.example.lhb.vo.req.TerminalHeartBeat;
+import com.example.lhb.vo.req.TerminalLogOut;
 import com.example.lhb.vo.req.TerminalRegisterMsg;
 
 import java.io.IOException;
@@ -24,6 +29,11 @@ public class RegActivity extends AppCompatActivity {
 
 
     Button btn_reg;
+    Button btn_heart;
+    Button btn_auth;
+    Button btn_resp;
+    Button btn_logout;
+    Button btn_paramresp;
     EditText edit_phone;
     EditText edit_flow;
     EditText edit_captal_id;
@@ -33,6 +43,9 @@ public class RegActivity extends AppCompatActivity {
     EditText edit_ter_id;
     EditText edit_color_id;
     EditText edit_car_num;
+
+
+    private String rebackAuthMsg="313131313131";//可能会出项空指针异常
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +61,11 @@ public class RegActivity extends AppCompatActivity {
         edit_color_id = (EditText) findViewById(R.id.edit_color_id);
         edit_car_num = (EditText) findViewById(R.id.edit_car_num);
         btn_reg = (Button) findViewById(R.id.btn_reg);
+        btn_heart=(Button)findViewById(R.id.btn_heart);
+        btn_auth=(Button)findViewById(R.id.btn_auth);
+        btn_resp=(Button)findViewById(R.id.btn_resp);
+        btn_logout=(Button)findViewById(R.id.btn_logout);
+        btn_paramresp=(Button)findViewById(R.id.btn_paramresp);
 
         TelephonyManager tm = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
         Intent intent = new Intent(RegActivity.this, Jt808Service.class);
@@ -56,11 +74,10 @@ public class RegActivity extends AppCompatActivity {
         startService(intent);
 
 
-
-
         btn_reg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Toast.makeText(RegActivity.this,"dddd",Toast.LENGTH_SHORT).show();
                 Jt808Service.client.setHandler(handler);
                 int provinceid = Integer.parseInt(edit_captal_id.getText().toString());
                 int cityid = Integer.parseInt(edit_city_id.getText().toString());
@@ -84,22 +101,144 @@ public class RegActivity extends AppCompatActivity {
                            e.printStackTrace();
                        }
                    }
-               }.start();;
+               }.start();
             }
         });
+
+        btn_heart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Jt808Service.client.setHandler(handler2);
+                String phone = edit_phone.getText().toString();
+                int flow = Integer.parseInt(edit_flow.getText().toString());
+
+                final TerminalHeartBeat terminalHeartBeat=new TerminalHeartBeat(0,0,false,phone,flow,0,0);
+                new Thread()
+                {
+                    public void run()
+                    {
+                        try{
+                            Jt808Service.client.heartbeatTerminal(terminalHeartBeat);
+                        }catch (IOException e){
+                            Log.e("taa","dfffffffffffff");
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            }
+        });
+
+        btn_auth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Jt808Service.client.setHandler(handler2);
+                String phone = edit_phone.getText().toString();
+                int flow = Integer.parseInt(edit_flow.getText().toString());
+
+                final TerminalAuthentication terminalAuthentication=new TerminalAuthentication(0,false,phone,flow,0,0,rebackAuthMsg);
+                new Thread()
+                {
+                    public void run()
+                    {
+                        try
+                        {
+                            Jt808Service.client.authenticationTerminal(terminalAuthentication);
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            }
+        });
+
+        btn_resp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Jt808Service.client.setHandler(handler2);
+                String phone = edit_phone.getText().toString();
+                int flow = Integer.parseInt(edit_flow.getText().toString());
+                final TerminalCommonResp terminalCommonResp=new TerminalCommonResp(0,false,phone,flow,0,0,258,0);
+                new Thread()
+                {
+                    public void run()
+                    {
+                        try{
+                            Jt808Service.client.commonRespTerminal(terminalCommonResp);
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            }
+        });
+
+        btn_logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Jt808Service.client.setHandler(handler2);
+                String phone = edit_phone.getText().toString();
+                int flow = Integer.parseInt(edit_flow.getText().toString());
+                final TerminalLogOut terminalLogOut=new TerminalLogOut(0,0,false,phone,flow,0,0);
+
+                new Thread()
+                {
+                    public void run()
+                    {
+                        try
+                        {
+                            Jt808Service.client.logOutTerminal(terminalLogOut);
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            }
+        });
+
+//        btn_paramresp.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Jt808Service.client.setHandler(handler2);
+//            }
+//        });
 
 
     }
 
-    Handler handler=new Handler()
+    Handler handler=new Handler()//处理返回消息
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            Bundle data=msg.getData();
+            byte[]b=data.getByteArray("data");
+            String hexString= HexStringUtils.toHexString(b);//转十六进制字符串
+            String hex2Byte=HexStringUtils.hexString2Bytes(hexString);
+            Log.e("tag",hexString+"");
+            Toast.makeText(RegActivity.this,"终端注册回应："+getAuthentication(hexString)+"",Toast.LENGTH_LONG).show();
+            //Toast.makeText(RegActivity.this,"终端注册回应："+hex2Byte+"",Toast.LENGTH_LONG).show();
+            rebackAuthMsg=getAuthentication(hexString);
+            super.handleMessage(msg);
+        }
+    };
+    Handler handler2=new Handler()//处理返回消息
     {
         @Override
         public void handleMessage(Message msg) {
             Bundle data=msg.getData();
             byte[]b=data.getByteArray("data");
             String hexString= HexStringUtils.toHexString(b);
-            Toast.makeText(RegActivity.this,"终端注册回应："+hexString+"",Toast.LENGTH_LONG).show();
+            Toast.makeText(RegActivity.this,"终端回应："+hexString+"",Toast.LENGTH_LONG).show();
+           // Toast.makeText(RegActivity.this,"终端心跳回应：",Toast.LENGTH_LONG).show();
             super.handleMessage(msg);
         }
     };
+
+    public String getAuthentication(String str)
+    {
+        String hasStr=str;
+     //   hasStr=hasStr.substring(0,32);
+        hasStr=hasStr.substring(0,hasStr.length()-4);//去掉后四位
+        hasStr=hasStr.substring(32,hasStr.length());
+        return(hasStr);
+    }
 }

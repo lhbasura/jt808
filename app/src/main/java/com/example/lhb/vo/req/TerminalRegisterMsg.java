@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author hylexus
  */
-public class TerminalRegisterMsg   {
+public class TerminalRegisterMsg   {//封装终端注册数据报
 
 
 
@@ -65,7 +65,7 @@ public class TerminalRegisterMsg   {
                                int color,String carnum)
     {
         this.MsgHeader=new MsgHeader();
-        MsgHeader.setMsgId(TPMSConsts.msg_id_terminal_register);
+        MsgHeader.setMsgId(TPMSConsts.msg_id_terminal_register);//设置消息头id
 
         int msgbodylenth=37+carnum.getBytes().length-1;
         MsgHeader.setMsgBodyLength(msgbodylenth);
@@ -206,14 +206,14 @@ public class TerminalRegisterMsg   {
         }
         for(int i=0;i<7;i++)
         {
-            Log.i("lll",terminalid[i]+"");
+         //   Log.i("lll",terminalid[i]+"");
 
         }
         System.arraycopy(temp3, 0, terminalid, 0, idlen);
         byte[] color = new byte[]{(byte) (this.getLicensePlateColor())};
         byte[] carnum = this.getLicensePlate().getBytes(TPMSConsts.string_charset);
         //carnum[0]+=1;
-        Log.i("color",color[0]+"");
+     //   Log.i("color",color[0]+"");
 
         listbyte.add(provinceid);
         listbyte.add(cityid);
@@ -227,7 +227,7 @@ public class TerminalRegisterMsg   {
         return bodybytes ;
     }
 
-    public byte[] getAllBytes() {
+    public byte[] getAllBytes() {//所有数据报字节
         BitOperator bitOperator = new BitOperator();
         byte[] headbytes = this.MsgHeader.getHeaderbytes();
         byte[] bodybytes = getMessageBodybytes();

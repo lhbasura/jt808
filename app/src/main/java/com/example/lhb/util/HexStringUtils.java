@@ -58,4 +58,20 @@ public class HexStringUtils {
 		System.out.println("十六进制字符串:" + hex);
 		System.out.println("还原:" + decode);
 	}
+
+	public static byte[] decodeHex2(char[] data) {
+		int len = data.length;
+		if ((len & 0x01) != 0) {
+			throw new RuntimeException("字符个数应该为偶数");
+		}
+		byte[] out = new byte[len >> 1];
+		for (int i = 0, j = 0; j < len; i++) {
+			int f = toDigit(data[j], j) << 4;
+			j++;
+			f |= toDigit(data[j], j);
+			j++;
+			out[i] = (byte) (f & 0xFF);
+		}
+		return out;
+	}
 }

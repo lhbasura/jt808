@@ -38,8 +38,7 @@ public class MsgHeader {
 			subpackage = 1;
 		int reserve = this.getReservedBit();//保留位
 		int msgmodel = (reserve << 14) + (subpackage << 12) + msglength;
-		for (int i=0;i<bitOperator.numToByteArray(msgmodel, 2).length;i++)
-		Log.i("msgmodel", bitOperator.numToByteArray(msgmodel, 2)[i]+"");
+
 		listbytes.add(bitOperator.numToByteArray(msgmodel, 2));//消息属性
 
 		BCD8421Operater bcd8421Operater = new BCD8421Operater();
@@ -56,8 +55,8 @@ public class MsgHeader {
 		}
 
 		byte[] msghead = bitOperator.concatAll(listbytes);
-		for(int i=0;i<msghead.length;i++)
-			Log.i("msghead",msghead[i]+"");
+	//	for(int i=0;i<msghead.length;i++)
+	//		Log.i("msghead",msghead[i]+"");
 		return msghead;
 	}
 

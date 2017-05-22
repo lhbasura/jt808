@@ -224,5 +224,57 @@
         android:gravity="center"
         android:text="注册"
         android:textSize="20dp" />
+    <Button
+        android:id="@+id/btn_heart"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="心跳"
+        android:textSize="20dp" />
+    <Button
+        android:id="@+id/btn_auth"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="鉴权"
+        android:textSize="20dp" />
+
+    <Button
+        android:id="@+id/btn_resp"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="通用应答"
+        android:textSize="20dp" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="注销"
+        android:textSize="20dp" />
+    <Button
+        android:id="@+id/btn_paramresp"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:text="查询终端参数(n)"
+        android:textSize="20dp" />
 </LinearLayout>
 </ScrollView>
