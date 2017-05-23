@@ -136,6 +136,4 @@ public class JT808ProtocolUtils {
 				| ((reversed_14_15 << 14) & 0xC000);
 		return ret & 0xffff;
 	}
-
-
 }

@@ -1,5 +1,6 @@
 package com.example.lhb.vo.req;
 
+import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
 import com.example.lhb.util.BCD8421Operater;
@@ -14,9 +15,9 @@ import java.util.List;
  * Created by Administrator on 2017/5/9 0009.
  */
 
-public class TerminalCommonResp {
+public class TerminalCommonResp extends MsgFrame {
 
-    MsgHeader msgHeader;
+
 
     //应答流水号WORD
     protected int flowId;

@@ -4,10 +4,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.example.lhb.common.MsgFrame;
+import com.example.lhb.common.MsgHeader;
 import com.example.lhb.util.BitOperator;
-import com.example.lhb.util.JT808ProtocolUtils;
 import com.example.lhb.vo.req.TerminalAuthentication;
 import com.example.lhb.vo.req.TerminalCommonResp;
 import com.example.lhb.vo.req.TerminalHeartBeat;
@@ -19,8 +19,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 /**
@@ -47,7 +45,6 @@ public class Jt808Client {
         try {
             channel = SocketChannel.open();//连接到TCP网络套接字的通道
             channel.configureBlocking(false);//非阻塞IO
-
             SocketAddress socketAddress = new InetSocketAddress(ipaddr, port);
 
             if (!channel.connect(socketAddress)){
@@ -68,26 +65,24 @@ public class Jt808Client {
 
                         try {
                             int len=0;
-                           // Log.e("tag","dbbbbbbbbbbbb");
                             if((len=channel.read(readbuffer))>0&&handler!=null)
                             {
                                 readbuffer.flip();
                                 byte[]rb=readbuffer.array();
-                          //      Log.e("tagc","dccccccccccccc");
 
                                 BitOperator bitOperator=new BitOperator();
                                 byte []bytes= bitOperator.splitBytes(rb,0,len-1);
+                                MsgFrame msgFrame=new MsgFrame(bytes);
+                                MsgHeader msgHeader=msgFrame.getHearder();
+
                                 Message message=new Message();
+                                message.what=msgHeader.getMsgId();
                                 Bundle bundle=new Bundle();
                                 bundle.putByteArray("data",bytes);
                                 message.setData(bundle);
                                 handler.sendMessage(message);
-                                Log.e("reading",message+"");
                             }
-
-
                         } catch (IOException e) {
-                            Log.e("tag","dgggggggggggggggg");
                             e.printStackTrace();
                         }
                     }
@@ -111,7 +106,6 @@ public class Jt808Client {
         try{
             channel.write(writebuffer);
         }catch (IOException e){
-            Log.e("cc","write error");
             e.printStackTrace();
         }
     }
@@ -132,7 +126,6 @@ public class Jt808Client {
         if(channel.isConnectionPending()){
             channel.finishConnect();
         }
-        Log.e("tag","dddddddddds");
         byte[]sendbyte=terminalHeartBeat.getAllBytes();
 
         sendBytes(sendbyte);
@@ -154,13 +147,6 @@ public class Jt808Client {
         byte[] sendbyte=terminalLogOut.getAllBytes();
         sendBytes(sendbyte);
     }
-
-
-
-
-
-
-
 
     public void logoff() {
 

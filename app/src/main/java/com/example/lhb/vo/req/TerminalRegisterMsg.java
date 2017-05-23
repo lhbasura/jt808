@@ -1,7 +1,6 @@
 package com.example.lhb.vo.req;
 
-import android.util.Log;
-
+import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
 import com.example.lhb.util.BCD8421Operater;
@@ -16,17 +15,17 @@ import java.util.List;
 /**
  * 终端注册消息
  *
- * @author hylexus
+
  */
-public class TerminalRegisterMsg   {//封装终端注册数据报
+public class TerminalRegisterMsg extends MsgFrame {//封装终端注册数据报
 
 
 
-    MsgHeader MsgHeader;
+
 
 
     public TerminalRegisterMsg(MsgHeader header) {
-        this.MsgHeader = header;
+        this.msgHeader = header;
     }
     /*
     // 消息ID
@@ -64,20 +63,20 @@ public class TerminalRegisterMsg   {//封装终端注册数据报
                                int provinceId,int cityId,String fcid,String tertype,String terid,
                                int color,String carnum)
     {
-        this.MsgHeader=new MsgHeader();
-        MsgHeader.setMsgId(TPMSConsts.msg_id_terminal_register);//设置消息头id
+        this.msgHeader=new MsgHeader();
+        msgHeader.setMsgId(TPMSConsts.msg_id_terminal_register);//设置消息头id
 
         int msgbodylenth=37+carnum.getBytes().length-1;
-        MsgHeader.setMsgBodyLength(msgbodylenth);
-        MsgHeader.setEncryptionType(encrypttype);
-        MsgHeader.setHasSubPackage(issubpackage);
-        MsgHeader.setReservedBit(0);
-        MsgHeader.setTerminalPhone(terminalphone);
-        MsgHeader.setFlowId(flowid);
+        msgHeader.setMsgBodyLength(msgbodylenth);
+        msgHeader.setEncryptionType(encrypttype);
+        msgHeader.setHasSubPackage(issubpackage);
+        msgHeader.setReservedBit(0);
+        msgHeader.setTerminalPhone(terminalphone);
+        msgHeader.setFlowId(flowid);
         if(issubpackage)
         {
-            MsgHeader.setTotalSubPackage(totalsubpackage);
-            MsgHeader.setSubPackageSeq(seq);
+            msgHeader.setTotalSubPackage(totalsubpackage);
+            msgHeader.setSubPackageSeq(seq);
         }
 
 
@@ -229,7 +228,7 @@ public class TerminalRegisterMsg   {//封装终端注册数据报
 
     public byte[] getAllBytes() {//所有数据报字节
         BitOperator bitOperator = new BitOperator();
-        byte[] headbytes = this.MsgHeader.getHeaderbytes();
+        byte[] headbytes = this.msgHeader.getHeaderbytes();
         byte[] bodybytes = getMessageBodybytes();
         List<byte[]> listbytes = new ArrayList<>();
         listbytes.add(headbytes);

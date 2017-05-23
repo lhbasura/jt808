@@ -108,7 +108,7 @@ public class RegActivity extends AppCompatActivity {
         btn_heart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Jt808Service.client.setHandler(handler2);
+                Jt808Service.client.setHandler(handler);
                 String phone = edit_phone.getText().toString();
                 int flow = Integer.parseInt(edit_flow.getText().toString());
 
@@ -120,7 +120,7 @@ public class RegActivity extends AppCompatActivity {
                         try{
                             Jt808Service.client.heartbeatTerminal(terminalHeartBeat);
                         }catch (IOException e){
-                            Log.e("taa","dfffffffffffff");
+
                             e.printStackTrace();
                         }
                     }
@@ -131,7 +131,7 @@ public class RegActivity extends AppCompatActivity {
         btn_auth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Jt808Service.client.setHandler(handler2);
+                Jt808Service.client.setHandler(handler);
                 String phone = edit_phone.getText().toString();
                 int flow = Integer.parseInt(edit_flow.getText().toString());
 
@@ -154,7 +154,7 @@ public class RegActivity extends AppCompatActivity {
         btn_resp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Jt808Service.client.setHandler(handler2);
+                Jt808Service.client.setHandler(handler);
                 String phone = edit_phone.getText().toString();
                 int flow = Integer.parseInt(edit_flow.getText().toString());
                 final TerminalCommonResp terminalCommonResp=new TerminalCommonResp(0,false,phone,flow,0,0,258,0);
@@ -175,7 +175,7 @@ public class RegActivity extends AppCompatActivity {
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Jt808Service.client.setHandler(handler2);
+                Jt808Service.client.setHandler(handler);
                 String phone = edit_phone.getText().toString();
                 int flow = Integer.parseInt(edit_flow.getText().toString());
                 final TerminalLogOut terminalLogOut=new TerminalLogOut(0,0,false,phone,flow,0,0);
@@ -194,49 +194,42 @@ public class RegActivity extends AppCompatActivity {
                 }.start();
             }
         });
-
-//        btn_paramresp.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Jt808Service.client.setHandler(handler2);
-//            }
-//        });
-
-
     }
 
     Handler handler=new Handler()//处理返回消息
     {
         @Override
         public void handleMessage(Message msg) {
+
             Bundle data=msg.getData();
             byte[]b=data.getByteArray("data");
-            String hexString= HexStringUtils.toHexString(b);//转十六进制字符串
-            String hex2Byte=HexStringUtils.hexString2Bytes(hexString);
-            Log.e("tag",hexString+"");
-            Toast.makeText(RegActivity.this,"终端注册回应："+getAuthentication(hexString)+"",Toast.LENGTH_LONG).show();
-            //Toast.makeText(RegActivity.this,"终端注册回应："+hex2Byte+"",Toast.LENGTH_LONG).show();
-            rebackAuthMsg=getAuthentication(hexString);
-            super.handleMessage(msg);
+            String hexString="";
+            String hex2Byte="";
+            switch (msg.what)
+            {
+
+                case TPMSConsts.cmd_terminal_register_resp:// 终端注册应答
+                     hexString= HexStringUtils.toHexString(b);//转十六进制字符串
+                     hex2Byte=HexStringUtils.hexString2Bytes(hexString);
+                    Log.e("tag",hexString+"");
+                    Toast.makeText(RegActivity.this,"终端注册回应："+getAuthentication(hexString)+"",Toast.LENGTH_LONG).show();
+                    rebackAuthMsg=getAuthentication(hexString);
+
+                    break;
+                default:// 终端通用应答
+
+                     hexString= HexStringUtils.toHexString(b);
+                    Toast.makeText(RegActivity.this,"终端回应："+hexString+"",Toast.LENGTH_LONG).show();
+                    break;
+            }
+
         }
     };
-    Handler handler2=new Handler()//处理返回消息
-    {
-        @Override
-        public void handleMessage(Message msg) {
-            Bundle data=msg.getData();
-            byte[]b=data.getByteArray("data");
-            String hexString= HexStringUtils.toHexString(b);
-            Toast.makeText(RegActivity.this,"终端回应："+hexString+"",Toast.LENGTH_LONG).show();
-           // Toast.makeText(RegActivity.this,"终端心跳回应：",Toast.LENGTH_LONG).show();
-            super.handleMessage(msg);
-        }
-    };
+
 
     public String getAuthentication(String str)
     {
         String hasStr=str;
-     //   hasStr=hasStr.substring(0,32);
         hasStr=hasStr.substring(0,hasStr.length()-4);//去掉后四位
         hasStr=hasStr.substring(32,hasStr.length());
         return(hasStr);

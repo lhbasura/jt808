@@ -4,12 +4,12 @@ import java.nio.charset.Charset;
 
 public class TPMSConsts {
 
-	//public  static final String ipaddr="202.98.11.79";
+	public  static final String ipaddr="202.98.11.79";
 	//public  static final String ipaddr="192.168.1.110";
-	public  static final String ipaddr="192.168.199.143";
+	//public  static final String ipaddr="192.168.199.209";
 
-	//public  static final int port=3701;
-	public  static final int port=60000;
+	public  static final int port=3701;
+	//public  static final int port=20048;
 	public static final String string_encoding = "GBK";
 
 	public static final Charset string_charset = Charset.forName(string_encoding);

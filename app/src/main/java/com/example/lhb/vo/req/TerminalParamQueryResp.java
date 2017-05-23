@@ -1,5 +1,6 @@
 package com.example.lhb.vo.req;
 
+import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
 
@@ -7,9 +8,9 @@ import com.example.lhb.common.TPMSConsts;
  * Created by Administrator on 2017/5/10 0010.
  */
 
-public class TerminalParamQueryResp {
+public class TerminalParamQueryResp extends MsgFrame {
 
-    MsgHeader msgHeader;
+
 
     //应答流水号 WORD
     protected int flowId;

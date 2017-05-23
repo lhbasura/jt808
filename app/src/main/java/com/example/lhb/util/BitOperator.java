@@ -5,6 +5,7 @@ import java.util.List;
 
 public class BitOperator {
 
+	final  int WORD=2;
 	public  static byte[]numToByteArray(long num,int size)
 	{
 		byte[] result = new byte[size];
@@ -64,7 +65,7 @@ public class BitOperator {
 
 	/**
 	 * 把一个byte转化位整形,通常为指令用
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 * @throws Exception
@@ -75,7 +76,7 @@ public class BitOperator {
 
 	/**
 	 * 把一个2位的数组转化位整形
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 * @throws Exception
@@ -91,7 +92,7 @@ public class BitOperator {
 
 	/**
 	 * 把一个3位的数组转化位整形
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 * @throws Exception
@@ -105,7 +106,7 @@ public class BitOperator {
 
 	/**
 	 * 把一个4位的数组转化位整形,通常为指令用
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 * @throws Exception
@@ -123,7 +124,7 @@ public class BitOperator {
 
 	/**
 	 * 把一个4位的数组转化位整形
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 * @throws Exception
@@ -329,17 +330,8 @@ public class BitOperator {
 		return Integer.parseInt(s.charAt(index) + "");
 	}
 
-	@Deprecated
-	public int getBitRangeS(int number, int start, int end) {
-		String s = Integer.toBinaryString(number);
-		StringBuilder sb = new StringBuilder(s);
-		while (sb.length() < Integer.SIZE) {
-			sb.insert(0, "0");
-		}
-		String tmp = sb.reverse().substring(start, end + 1);
-		sb = new StringBuilder(tmp);
-		return Integer.parseInt(sb.reverse().toString(), 2);
-	}
+
+
 	public byte[]splitBytes(byte[]bytes,int start,int end)
 	{
 		byte[]b=new byte[end-start+1];
@@ -350,8 +342,8 @@ public class BitOperator {
 		}
 		return b;
 	}
-	public byte[]getHeaderBytes(byte[]all)
+	/*public byte[]getHeaderBytes(byte[]all)
 	{
 		return splitBytes(all,1,16);
-	}
+	}*/
 }

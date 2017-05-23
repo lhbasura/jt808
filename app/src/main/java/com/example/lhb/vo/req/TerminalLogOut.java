@@ -1,5 +1,6 @@
 package com.example.lhb.vo.req;
 
+import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
 import com.example.lhb.util.BitOperator;
@@ -8,8 +9,8 @@ import com.example.lhb.util.BitOperator;
  * Created by Administrator on 2017/5/10 0010.
  */
 
-public class TerminalLogOut {
-    MsgHeader msgHeader;
+public class TerminalLogOut extends MsgFrame {
+
 
     public TerminalLogOut(int msgbodylength,int encryptiontype,boolean issubpackage,String terminalphone,
                           int flowed,int totalsubpackage,int seq)

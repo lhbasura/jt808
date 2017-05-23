@@ -7,5 +7,5 @@ import com.example.lhb.common.MsgHeader;
  */
 
 public class CmdRegisterRespMsg {
-    MsgHeader header;
+
 }

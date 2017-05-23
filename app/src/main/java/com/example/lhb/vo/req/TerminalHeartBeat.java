@@ -1,5 +1,6 @@
 package com.example.lhb.vo.req;
 
+import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
 import com.example.lhb.util.BitOperator;
@@ -11,9 +12,9 @@ import java.util.List;
  * Created by Administrator on 2017/5/8 0008.
  */
 
-public class TerminalHeartBeat {
+public class TerminalHeartBeat extends MsgFrame {
 
-    MsgHeader msgHeader;
+
         /*
     // 消息ID
     protected int msgId;

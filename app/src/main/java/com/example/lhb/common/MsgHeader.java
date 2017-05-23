@@ -65,7 +65,7 @@ public class MsgHeader {
 
 		/////// ========消息体属性
 		// byte[2-3]
-		protected byte msgBodyPropsField;
+		protected int msgBodyPropsField;
 		// 消息体长度
 		protected int msgBodyLength;
 		// 数据加密方式
@@ -169,7 +169,7 @@ public class MsgHeader {
 		}
 
 		public void setMsgBodyPropsField(int msgBodyPropsField) {
-			this.msgBodyPropsField = (byte)msgBodyPropsField;
+			this.msgBodyPropsField =msgBodyPropsField;
 		}
 
 		public void setPackageInfoField(int packageInfoField) {
