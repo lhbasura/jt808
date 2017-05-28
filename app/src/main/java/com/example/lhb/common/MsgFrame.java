@@ -52,9 +52,26 @@ public class MsgFrame {
             this.msgHeader.setTotalSubPackage(total);
             this.msgHeader.setSubPackageSeq(seq);
         }
+        this.msgHeader.setTerminalPhone(phone);
         this.msgHeader.setHasSubPackage(is_sub);
         this.msgHeader.setEncryptionType(encryp);
         this.msgHeader.setMsgBodyLength(length);
         this.msgHeader.setFlowId(flowid);
+    }
+    public byte[]getBodyBytes(byte[]bytes)
+    {
+        BitOperator bitOperator=new BitOperator();
+        if (msgHeader.isHasSubPackage())
+        {
+            return bitOperator.splitBytes(bytes,17,bytes.length-3);
+        }
+        else
+        {
+            return bitOperator.splitBytes(bytes,13,bytes.length-3);
+        }
+    }
+    public  void  setMsgHeader(MsgHeader msgHeader)
+    {
+        this.msgHeader=msgHeader;
     }
 }

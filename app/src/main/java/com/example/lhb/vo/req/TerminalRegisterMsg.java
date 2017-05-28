@@ -58,28 +58,27 @@ public class TerminalRegisterMsg extends MsgFrame {//封装终端注册数据报
     protected long subPackageSeq;
     //////// =====消息包封装项
     */
-    public TerminalRegisterMsg(int encrypttype,boolean issubpackage,
-                               String terminalphone,int flowid,int totalsubpackage,int seq,
+
+    /**
+     *
+     * @param header
+     * @param provinceId
+     * @param cityId
+     * @param fcid
+     * @param tertype
+     * @param terid
+     * @param color
+     * @param carnum
+     */
+    public TerminalRegisterMsg(MsgHeader header,
                                int provinceId,int cityId,String fcid,String tertype,String terid,
                                int color,String carnum)
     {
-        this.msgHeader=new MsgHeader();
-        msgHeader.setMsgId(TPMSConsts.msg_id_terminal_register);//设置消息头id
 
+        header.setMsgId(TPMSConsts.msg_id_terminal_register);//设置消息头id
         int msgbodylenth=37+carnum.getBytes().length-1;
-        msgHeader.setMsgBodyLength(msgbodylenth);
-        msgHeader.setEncryptionType(encrypttype);
-        msgHeader.setHasSubPackage(issubpackage);
-        msgHeader.setReservedBit(0);
-        msgHeader.setTerminalPhone(terminalphone);
-        msgHeader.setFlowId(flowid);
-        if(issubpackage)
-        {
-            msgHeader.setTotalSubPackage(totalsubpackage);
-            msgHeader.setSubPackageSeq(seq);
-        }
-
-
+        header.setMsgBodyLength(msgbodylenth);
+        setMsgHeader(header);
 
         this.setProvinceId(provinceId);
         this.setCityId(cityId);
@@ -203,16 +202,10 @@ public class TerminalRegisterMsg extends MsgFrame {//封装终端注册数据报
         {
             idlen=7;
         }
-        for(int i=0;i<7;i++)
-        {
-         //   Log.i("lll",terminalid[i]+"");
 
-        }
         System.arraycopy(temp3, 0, terminalid, 0, idlen);
         byte[] color = new byte[]{(byte) (this.getLicensePlateColor())};
         byte[] carnum = this.getLicensePlate().getBytes(TPMSConsts.string_charset);
-        //carnum[0]+=1;
-     //   Log.i("color",color[0]+"");
 
         listbyte.add(provinceid);
         listbyte.add(cityid);

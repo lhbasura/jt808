@@ -1,6 +1,10 @@
 package com.example.lhb.jt808;
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -12,28 +16,48 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
-import com.example.lhb.tool.Jt808Client;
-import com.example.lhb.util.BitOperator;
+
 import com.example.lhb.util.HexStringUtils;
 import com.example.lhb.vo.req.TerminalAuthentication;
 import com.example.lhb.vo.req.TerminalCommonResp;
 import com.example.lhb.vo.req.TerminalHeartBeat;
+import com.example.lhb.vo.req.TerminalLocationReport;
 import com.example.lhb.vo.req.TerminalLogOut;
 import com.example.lhb.vo.req.TerminalRegisterMsg;
+import com.example.lhb.vo.resp.CmdRegisterRespMsg;
+import com.example.lhb.vo.resp.ServerCommonRespMsg;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-public class RegActivity extends AppCompatActivity {
+public class RegActivity extends AppCompatActivity  implements SensorEventListener {
 
-
+    AMapLocationClient mLocationClient;
+    private SensorManager sensorManager;
+    private Sensor acc_sensor;
+    private Sensor mag_sensor;
+    //加速度传感器数据
+    float accValues[]=new float[3];
+    //地磁传感器数据
+    float magValues[]=new float[3];
+    //旋转矩阵，用来保存磁场和加速度的数据
+    float r[]=new float[9];
+    //模拟方向传感器的数据（原始数据为弧度）
+    float values[]=new float[3];
     Button btn_reg;
     Button btn_heart;
     Button btn_auth;
     Button btn_resp;
     Button btn_logout;
     Button btn_paramresp;
+    Button btn_location;
     EditText edit_phone;
     EditText edit_flow;
     EditText edit_captal_id;
@@ -44,9 +68,21 @@ public class RegActivity extends AppCompatActivity {
     EditText edit_color_id;
     EditText edit_car_num;
 
-
+    EditText edit_sign;
+    EditText edit_state;
+    EditText edit_lat;
+    EditText edit_lon;
+    EditText edit_height;
+    EditText edit_speed;
+    EditText edit_direction;
+    EditText edit_time;
+    EditText edit_attachId;
+    EditText edit_attachLength;
+    EditText edit_attachMsg;
     private String rebackAuthMsg="313131313131";//可能会出项空指针异常
-
+    MsgHeader header;
+    double lon;
+    double lat;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,21 +100,44 @@ public class RegActivity extends AppCompatActivity {
         btn_heart=(Button)findViewById(R.id.btn_heart);
         btn_auth=(Button)findViewById(R.id.btn_auth);
         btn_resp=(Button)findViewById(R.id.btn_resp);
+        btn_location=(Button)findViewById(R.id.btn_location);
         btn_logout=(Button)findViewById(R.id.btn_logout);
         btn_paramresp=(Button)findViewById(R.id.btn_paramresp);
 
+        edit_sign=(EditText)findViewById(R.id.edit_sign);
+        edit_state=(EditText)findViewById(R.id.edit_state);
+        edit_lat=(EditText)findViewById(R.id.edit_lat);
+        edit_lon=(EditText)findViewById(R.id.edit_lon);
+        edit_height=(EditText)findViewById(R.id.edit_height);
+        edit_speed=(EditText)findViewById(R.id.edit_speed);
+        edit_direction=(EditText)findViewById(R.id.edit_direction);
+
+        edit_time=(EditText)findViewById(R.id.edit_time);
+        edit_attachId=(EditText)findViewById(R.id.edit_attachId);
+        edit_attachLength=(EditText)findViewById(R.id.edit_attachLength);
+        edit_attachMsg=(EditText)findViewById(R.id.edit_attachMsg);
+        getLonLat();
         TelephonyManager tm = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
         Intent intent = new Intent(RegActivity.this, Jt808Service.class);
         byte[]b=null;
         intent.putExtra("data",b);
         startService(intent);
-
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        acc_sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mag_sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        //给传感器注册监听：
+        sensorManager.registerListener(this, acc_sensor, SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, mag_sensor,SensorManager.SENSOR_DELAY_GAME);
+        header=new MsgHeader(0,false,edit_phone.getText().toString(),Integer.parseInt(edit_flow.getText().toString()));
 
         btn_reg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(RegActivity.this,"dddd",Toast.LENGTH_SHORT).show();
+
                 Jt808Service.client.setHandler(handler);
+                header=new MsgHeader(0,false,edit_phone.getText().toString(),Integer.parseInt(edit_flow.getText().toString()));
+
+
                 int provinceid = Integer.parseInt(edit_captal_id.getText().toString());
                 int cityid = Integer.parseInt(edit_city_id.getText().toString());
 
@@ -89,14 +148,15 @@ public class RegActivity extends AppCompatActivity {
                 String terid = edit_ter_id.getText().toString();
                 int color = Integer.parseInt(edit_color_id.getText().toString());
                 String carnum = edit_car_num.getText().toString();
-                final TerminalRegisterMsg terminalRegisterMsg = new TerminalRegisterMsg(0, false, phone, flow, 0, 0,
+               final TerminalRegisterMsg terminalRegisterMsg = new TerminalRegisterMsg(header,
                         provinceid, cityid, fcid, tertype, terid, color, carnum);
-               new Thread()
+                new Thread()
                {
                    public void run()
                    {
                        try {
-                           Jt808Service.client.registerTerminal(terminalRegisterMsg);
+                             Jt808Service.client.registerTerminal(terminalRegisterMsg);
+                           Log.i("tt","sss");
                        } catch (IOException e) {
                            e.printStackTrace();
                        }
@@ -150,6 +210,54 @@ public class RegActivity extends AppCompatActivity {
                 }.start();
             }
         });
+        btn_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Jt808Service.client.setHandler(handler);
+
+                new Thread()
+                {
+                    public  void run()
+                    {
+                        while (true)
+                        {
+                            long sign=Long.parseLong(edit_sign.getText().toString());
+                            long state=Long.parseLong(edit_state.getText().toString());
+                            long lat=(long) (Double.parseDouble(edit_lat.getText().toString())*1000000);
+                            long lon=(long)(Double.parseDouble(edit_lon.getText().toString())*1000000);
+                            int height=(int)Float.parseFloat(edit_height.getText().toString());
+                            int speed=(int)Float.parseFloat(edit_speed.getText().toString());
+                            int direction=(int)Float.parseFloat(edit_direction.getText().toString());
+                            String time=edit_time.getText().toString();
+                            int attachId=Integer.parseInt(edit_attachId.getText().toString());
+                            int attachLength=Integer.parseInt(edit_attachLength.getText().toString());
+                            long attachMsg=Long.parseLong(edit_attachMsg.getText().toString());
+                            final TerminalLocationReport terminalLocationReport
+                                    =new TerminalLocationReport(header,sign,state,lat,lon,height,speed,direction,time,attachId,attachLength,attachMsg);
+                            Log.i("locationbytes","gothere");
+                            byte[]sendbytes=terminalLocationReport.getAllBytes();
+                            Log.i("locationbytes",HexStringUtils.toHexString(sendbytes));
+                            Log.i("locationbytes_length",sendbytes.length+"");
+                            Log.i("location",terminalLocationReport.toString());
+                            try {
+
+                                Jt808Service.client.sendBytes(sendbytes);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }
+                }.start();
+                btn_location.setEnabled(false);
+
+            }
+        });
 
         btn_resp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +304,68 @@ public class RegActivity extends AppCompatActivity {
         });
     }
 
+    public void getLonLat()
+    {
+        //初始化定位
+        mLocationClient = new AMapLocationClient(this);
+        //设置定位回调监听，这里要实现AMapLocationListener接口，AMapLocationListener接口只有onLocationChanged方法可以实现，用于接收异步返回的定位结果，参数是AMapLocation类型。
+        //初始化定位参数
+        AMapLocationClientOption mLocationOption = new AMapLocationClientOption();
+        //设置定位模式为Hight_Accuracy高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        //设置是否返回地址信息（默认返回地址信息）
+        mLocationOption.setNeedAddress(true);
+        //设置是否只定位一次
+        mLocationOption.setOnceLocation(false);
+        //设置是否强制刷新WIFI，默认为强制刷新
+        mLocationOption.setWifiActiveScan(true);
+        //设置是否允许模拟位置
+        mLocationOption.setMockEnable(true);
+        //设置定位间隔,单位毫秒,默认为2000ms
+        mLocationOption.setInterval(2000);
+        //给定位客户端对象设置定位参数
+        mLocationClient.setLocationOption(mLocationOption);
+        mLocationClient.startLocation();
+        mLocationClient.setLocationListener(new AMapLocationListener() {
+            @Override
+            public void onLocationChanged(AMapLocation aMapLocation) {
+
+                if (aMapLocation != null) {
+
+                    if (aMapLocation.getErrorCode() == 0) {
+
+                        //定位成功回调信息，设置相关消息
+                        aMapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
+
+
+                        aMapLocation.getAccuracy();//获取精度信息
+
+                        lat=(aMapLocation.getLatitude());//获取纬度
+                        lon=(aMapLocation.getLongitude());
+                        long time =aMapLocation.getTime();
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(Long.valueOf(time));
+                        SimpleDateFormat df=new SimpleDateFormat("yyMMddHHmmss");
+                        String datestring = df.format(calendar.getTime());
+                        edit_height.setText(aMapLocation.getAltitude()+"");
+                        edit_speed.setText(aMapLocation.getSpeed()+"");
+                        edit_time.setText(datestring);
+                        edit_lat.setText(lat+"");
+                        edit_lon.setText(lon+"");
+
+                    } else {
+
+                        //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
+                        Log.i("mylog","location Error, ErrCode:"
+                                + aMapLocation.getErrorCode() + ", errInfo:"
+                                + aMapLocation.getErrorInfo());
+
+                        mLocationClient.stopLocation();
+                    }
+                }
+            }
+        });
+    }
     Handler handler=new Handler()//处理返回消息
     {
         @Override
@@ -209,29 +379,63 @@ public class RegActivity extends AppCompatActivity {
             {
 
                 case TPMSConsts.cmd_terminal_register_resp:// 终端注册应答
-                     hexString= HexStringUtils.toHexString(b);//转十六进制字符串
-                     hex2Byte=HexStringUtils.hexString2Bytes(hexString);
-                    Log.e("tag",hexString+"");
-                    Toast.makeText(RegActivity.this,"终端注册回应："+getAuthentication(hexString)+"",Toast.LENGTH_LONG).show();
-                    rebackAuthMsg=getAuthentication(hexString);
+                    CmdRegisterRespMsg cmdRegisterRespMsg=new CmdRegisterRespMsg(b);
 
+                    Toast.makeText(RegActivity.this,"终端注册回应："+cmdRegisterRespMsg.toString(),Toast.LENGTH_SHORT).show();
+                    rebackAuthMsg=cmdRegisterRespMsg.getAuthCode();
                     break;
-                default:// 终端通用应答
+                case TPMSConsts.cmd_common_resp:// 平台通用应答
 
-                     hexString= HexStringUtils.toHexString(b);
-                    Toast.makeText(RegActivity.this,"终端回应："+hexString+"",Toast.LENGTH_LONG).show();
+                    ServerCommonRespMsg serverCommonRespMsg=new ServerCommonRespMsg(b);
+                    Toast.makeText(RegActivity.this,serverCommonRespMsg.toString(),Toast.LENGTH_LONG).show();
+                    hexString=HexStringUtils.toHexString(b);
+                    Log.i("cmd_common_resp","平台通用应答："+hexString+"");
                     break;
+                default:
+                    hexString=HexStringUtils.toHexString(b);
+                    Toast.makeText(RegActivity.this,"平台回应"+hexString,Toast.LENGTH_SHORT).show();
             }
 
         }
     };
 
 
-    public String getAuthentication(String str)
-    {
-        String hasStr=str;
-        hasStr=hasStr.substring(0,hasStr.length()-4);//去掉后四位
-        hasStr=hasStr.substring(32,hasStr.length());
-        return(hasStr);
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+            accValues=event.values.clone();//这里是对象，需要克隆一份，否则共用一份数据
+        }
+        else if(event.sensor.getType()==Sensor.TYPE_MAGNETIC_FIELD){
+            magValues=event.values.clone();//这里是对象，需要克隆一份，否则共用一份数据
+        }
+        /**public static boolean getRotationMatrix (float[] R, float[] I, float[] gravity, float[] geomagnetic)
+         * 填充旋转数组r
+         * r：要填充的旋转数组
+         * I:将磁场数据转换进实际的重力坐标中 一般默认情况下可以设置为null
+         * gravity:加速度传感器数据
+         * geomagnetic：地磁传感器数据
+         */
+        SensorManager.getRotationMatrix(r, null, accValues, magValues);
+        /**
+         * public static float[] getOrientation (float[] R, float[] values)
+         * R：旋转数组
+         * values ：模拟方向传感器的数据
+         */
+
+        SensorManager.getOrientation(r, values);
+
+
+        //将弧度转化为角度后输出
+        StringBuffer buff=new StringBuffer();
+       /* for(float value:values){
+            value=(float) Math.toDegrees(value);
+            buff.append(value+"  ");
+        }*/
+        edit_direction.setText(values[0]+"");
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

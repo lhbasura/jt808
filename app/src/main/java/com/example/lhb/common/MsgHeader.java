@@ -15,12 +15,51 @@ public class MsgHeader {
 	{
 
 	}
-	public MsgHeader(byte[]bytes)
+
+	/**
+	 *
+	 *
+	 * @encrypttype加密方式
+	 * @issubpackage是否分包
+	 * @terminalphone终端手机号
+	 * @flowid流水号
+	 * @totalsubpackage总包数
+     * @seq包序号
+     */
+	public MsgHeader(int encrypttype,boolean issubpackage,
+					 String terminalphone,int flowid,int totalsubpackage,int seq)
 	{
-		BitOperator bitOperator=new BitOperator();
-		this.setMsgId(bytes[0]);
-		byte[]reservebytes=bitOperator.splitBytes(bytes,1,2);
-		byte issubbyte=bytes[3];
+
+		setMsgId(msgId);//设置消息头id
+		setEncryptionType(encrypttype);
+		setHasSubPackage(issubpackage);
+		setReservedBit(0);
+		setTerminalPhone(terminalphone);
+		setFlowId(flowid);
+		if(issubpackage)
+		{
+			setTotalSubPackage(totalsubpackage);
+			setSubPackageSeq(seq);
+		}
+	}
+
+	/**
+	 *
+	 * @param encrypttype
+	 * @param issubpackage
+	 * @param terminalphone
+     * @param flowid
+     */
+	public MsgHeader(int encrypttype,boolean issubpackage,
+					 String terminalphone,int flowid)
+	{
+
+		setMsgId(msgId);//设置消息头id
+		setEncryptionType(encrypttype);
+		setHasSubPackage(issubpackage);
+		setReservedBit(0);
+		setTerminalPhone(terminalphone);
+		setFlowId(flowid);
 	}
 	public byte[]getHeaderbytes()
 	{
@@ -182,11 +221,11 @@ public class MsgHeader {
 
 		@Override
 		public String toString() {
-			return "MsgHeader [msgId=" + msgId + ", msgBodyPropsField=" + msgBodyPropsField + ", msgBodyLength="
-					+ msgBodyLength + ", encryptionType=" + encryptionType + ", hasSubPackage=" + hasSubPackage
-					+ ", reservedBit=" + reservedBit + ", terminalPhone=" + terminalPhone + ", flowId=" + flowId
-					+ ", packageInfoField=" + packageInfoField + ", totalSubPackage=" + totalSubPackage
-					+ ", subPackageSeq=" + subPackageSeq + "]";
+			return "消息头 [消息ID=" + msgId + ", 消息体长度="
+					+ msgBodyLength + ", 加密方式=" + encryptionType + ", 是否分包=" + hasSubPackage
+					+ ", 保留位=" + reservedBit + ", 终端手机号=" + terminalPhone + ", 流水号=" + flowId
+					+ ", 消息包封装项=" + packageInfoField + ", 包总数=" + totalSubPackage
+					+ ", 包序号=" + subPackageSeq + "]\n";
 		}
 
 

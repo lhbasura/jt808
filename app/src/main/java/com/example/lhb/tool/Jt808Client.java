@@ -8,9 +8,11 @@ import android.util.Log;
 import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.util.BitOperator;
+import com.example.lhb.util.HexStringUtils;
 import com.example.lhb.vo.req.TerminalAuthentication;
 import com.example.lhb.vo.req.TerminalCommonResp;
 import com.example.lhb.vo.req.TerminalHeartBeat;
+import com.example.lhb.vo.req.TerminalLocationReport;
 import com.example.lhb.vo.req.TerminalLogOut;
 import com.example.lhb.vo.req.TerminalRegisterMsg;
 
@@ -119,8 +121,20 @@ public class Jt808Client {
             channel.finishConnect();
         }
         byte[]sendbytes=terminalAuthenticationMsg.getAllBytes();
+        String str= HexStringUtils.toHexString(sendbytes);
+       // Log.i("location",str);
         sendBytes(sendbytes);//发送消息
     }
+
+    //位置信息汇报
+    public void locationReport(TerminalLocationReport terminalLocationReport) throws IOException {
+        if(channel.isConnectionPending()){
+            channel.finishConnect();
+        }
+       // byte[]sendbyte=terminalLocationReport.getAllBytes();
+    }
+
+    //心跳包
     public void heartbeatTerminal(TerminalHeartBeat terminalHeartBeat)throws IOException
     {
         if(channel.isConnectionPending()){

@@ -1,6 +1,12 @@
 package com.example.lhb.vo.resp;
 
-public class ServerCommonRespMsgBody {
+import com.example.lhb.common.MsgFrame;
+import com.example.lhb.util.BitOperator;
+/*
+
+平台通用应答
+ */
+public class ServerCommonRespMsg extends MsgFrame{
 
 	public static final byte success = 0;
 	public static final byte failure = 1;
@@ -21,10 +27,22 @@ public class ServerCommonRespMsgBody {
 	 */
 	private byte replyCode;
 
-	public ServerCommonRespMsgBody() {
+	public ServerCommonRespMsg() {
+	}
+	public ServerCommonRespMsg(byte[]bytes) {
+		super(bytes);
+		BitOperator bitOperator=new BitOperator();
+		byte[]body=getBodyBytes(bytes);
+		byte[]flowId_bytes=bitOperator.splitBytes(body,0,1);
+		byte[]replyId_bytes=bitOperator.splitBytes(body,2,3);
+
+		this.setReplyFlowId(bitOperator.byteToInteger(flowId_bytes));
+		this.setReplyId(bitOperator.byteToInteger(replyId_bytes));
+		this.setReplyCode(body[4]);
+
 	}
 
-	public ServerCommonRespMsgBody(int replyFlowId, int replyId, byte replyCode) {
+	public ServerCommonRespMsg(int replyFlowId, int replyId, byte replyCode) {
 		super();
 		this.replyFlowId = replyFlowId;
 		this.replyId = replyId;
@@ -57,7 +75,7 @@ public class ServerCommonRespMsgBody {
 
 	@Override
 	public String toString() {
-		return "ServerCommonRespMsg [replyFlowId=" + replyFlowId + ", replyId=" + replyId + ", replyCode=" + replyCode
+		return msgHeader.toString()+"消息体 [应答流水号=" + replyFlowId + ", 应答id=" + replyId + ", 结果=" + replyCode
 				+ "]";
 	}
 
