@@ -1,11 +1,9 @@
-package com.example.lhb.vo.req;
+package com.example.lhb.vo.send;
 
 import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
-import com.example.lhb.util.BCD8421Operater;
 import com.example.lhb.util.BitOperator;
-import com.example.lhb.util.HexStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

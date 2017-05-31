@@ -1,12 +1,8 @@
-package com.example.lhb.vo.req;
-
-import android.util.Log;
-import android.widget.Toast;
+package com.example.lhb.vo.send;
 
 import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
-import com.example.lhb.util.BCD8421Operater;
 import com.example.lhb.util.BitOperator;
 import com.example.lhb.util.HexStringUtils;
 

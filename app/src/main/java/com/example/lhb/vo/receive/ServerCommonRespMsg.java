@@ -1,4 +1,4 @@
-package com.example.lhb.vo.resp;
+package com.example.lhb.vo.receive;
 
 import com.example.lhb.common.MsgFrame;
 import com.example.lhb.util.BitOperator;

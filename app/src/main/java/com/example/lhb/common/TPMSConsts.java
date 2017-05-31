@@ -30,6 +30,10 @@ public class TPMSConsts {
 	public static final int msg_id_terminal_authentication = 0x0102;
 	// 位置信息汇报
 	public static final int msg_id_terminal_location_info_upload = 0x0200;
+	// 位置信息查询
+	public static final int msg_id_check_location_info= 0x8201;
+	// 位置信息查询应答
+	public static final int msg_id_check_location_resp= 0x0201;
 	// 胎压数据透传
 	public static final int msg_id_terminal_transmission_tyre_pressure = 0x0600;
 	// 查询终端参数应答

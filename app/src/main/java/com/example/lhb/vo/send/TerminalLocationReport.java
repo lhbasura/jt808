@@ -1,4 +1,4 @@
-package com.example.lhb.vo.req;
+package com.example.lhb.vo.send;
 
 import android.util.Log;
 

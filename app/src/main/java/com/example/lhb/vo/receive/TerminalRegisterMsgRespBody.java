@@ -1,4 +1,4 @@
-package com.example.lhb.vo.resp;
+package com.example.lhb.vo.receive;
 
 public class TerminalRegisterMsgRespBody {
 

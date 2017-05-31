@@ -1,10 +1,8 @@
-package com.example.lhb.vo.resp;
+package com.example.lhb.vo.receive;
 
 import android.util.Log;
 
 import com.example.lhb.common.MsgFrame;
-import com.example.lhb.common.MsgHeader;
-import com.example.lhb.common.TPMSConsts;
 import com.example.lhb.util.BitOperator;
 import com.example.lhb.util.HexStringUtils;
 

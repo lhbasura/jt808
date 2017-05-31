@@ -9,12 +9,12 @@ import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.util.BitOperator;
 import com.example.lhb.util.HexStringUtils;
-import com.example.lhb.vo.req.TerminalAuthentication;
-import com.example.lhb.vo.req.TerminalCommonResp;
-import com.example.lhb.vo.req.TerminalHeartBeat;
-import com.example.lhb.vo.req.TerminalLocationReport;
-import com.example.lhb.vo.req.TerminalLogOut;
-import com.example.lhb.vo.req.TerminalRegisterMsg;
+import com.example.lhb.vo.send.TerminalAuthentication;
+import com.example.lhb.vo.send.TerminalCommonResp;
+import com.example.lhb.vo.send.TerminalHeartBeat;
+import com.example.lhb.vo.send.TerminalLocationReport;
+import com.example.lhb.vo.send.TerminalLogOut;
+import com.example.lhb.vo.send.TerminalRegisterMsg;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -30,6 +30,7 @@ import java.nio.channels.SocketChannel;
 public class Jt808Client {
     private String ipaddr;
     private int port;
+    int flowId=0;
     ByteBuffer writebuffer;
     ByteBuffer readbuffer;
     SocketChannel channel;

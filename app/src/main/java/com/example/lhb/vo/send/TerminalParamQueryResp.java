@@ -1,4 +1,4 @@
-package com.example.lhb.vo.req;
+package com.example.lhb.vo.send;
 
 import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;

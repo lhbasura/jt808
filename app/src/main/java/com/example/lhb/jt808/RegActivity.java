@@ -20,18 +20,20 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.example.lhb.common.MsgFrame;
 import com.example.lhb.common.MsgHeader;
 import com.example.lhb.common.TPMSConsts;
 
 import com.example.lhb.util.HexStringUtils;
-import com.example.lhb.vo.req.TerminalAuthentication;
-import com.example.lhb.vo.req.TerminalCommonResp;
-import com.example.lhb.vo.req.TerminalHeartBeat;
-import com.example.lhb.vo.req.TerminalLocationReport;
-import com.example.lhb.vo.req.TerminalLogOut;
-import com.example.lhb.vo.req.TerminalRegisterMsg;
-import com.example.lhb.vo.resp.CmdRegisterRespMsg;
-import com.example.lhb.vo.resp.ServerCommonRespMsg;
+import com.example.lhb.vo.send.TerminalAuthentication;
+import com.example.lhb.vo.send.TerminalCommonResp;
+import com.example.lhb.vo.send.TerminalHeartBeat;
+import com.example.lhb.vo.send.TerminalLocationReport;
+import com.example.lhb.vo.send.TerminalLocationResp;
+import com.example.lhb.vo.send.TerminalLogOut;
+import com.example.lhb.vo.send.TerminalRegisterMsg;
+import com.example.lhb.vo.receive.CmdRegisterRespMsg;
+import com.example.lhb.vo.receive.ServerCommonRespMsg;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -390,6 +392,35 @@ public class RegActivity extends AppCompatActivity  implements SensorEventListen
                     Toast.makeText(RegActivity.this,serverCommonRespMsg.toString(),Toast.LENGTH_LONG).show();
                     hexString=HexStringUtils.toHexString(b);
                     Log.i("cmd_common_resp","平台通用应答："+hexString+"");
+                    break;
+                case TPMSConsts.msg_id_check_location_info:
+                    MsgFrame msgFram=new MsgFrame(b);
+                    MsgHeader header=msgFram.getHearder();
+                    long sign=Long.parseLong(edit_sign.getText().toString());
+                    long state=Long.parseLong(edit_state.getText().toString());
+                    long lat=(long) (Double.parseDouble(edit_lat.getText().toString())*1000000);
+                    long lon=(long)(Double.parseDouble(edit_lon.getText().toString())*1000000);
+                    int height=(int)Float.parseFloat(edit_height.getText().toString());
+                    int speed=(int)Float.parseFloat(edit_speed.getText().toString());
+                    int direction=(int)Float.parseFloat(edit_direction.getText().toString());
+                    String time=edit_time.getText().toString();
+                    int attachId=Integer.parseInt(edit_attachId.getText().toString());
+                    int attachLength=Integer.parseInt(edit_attachLength.getText().toString());
+                    long attachMsg=Long.parseLong(edit_attachMsg.getText().toString());
+                    final TerminalLocationResp terminalLocationResp
+                            =new TerminalLocationResp(header,header.getFlowId(),sign,state,lat,lon,height,speed,direction,time,attachId,attachLength,attachMsg);
+                    new Thread()
+                    {
+                        public void run()
+                        {
+                            byte[]sendbytes=terminalLocationResp.getAllBytes();
+                            try {
+                                Jt808Service.client.sendBytes(sendbytes);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }.start();
                     break;
                 default:
                     hexString=HexStringUtils.toHexString(b);
